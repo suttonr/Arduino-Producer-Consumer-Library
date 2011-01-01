@@ -1,0 +1,16 @@
+Links two arduinos together using a buffer on the producer side. 
+
+Requirements:
+  * Arduino 0019 or greater
+
+Limitations:
+  * Only consumer in the library at this time.
+  * Only I2C implemented
+  * Customized for GPS data, eventully will be obfuscated
+
+Install:
+  To install copy the ProducerConsumer/ directory into your arduino 'libraries'
+  directory
+  ie:
+    cp -a ProducerConsumer [/path/to/arduino]/libraries
+
