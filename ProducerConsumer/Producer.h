@@ -39,12 +39,14 @@
 #include <WString.h>
 #include <Wire.h>
 
-class Producer : public TwoWire{
+class Producer {
   public:
     Producer(int addr);
     byte bufferWrite(word data,byte meta);
     void bufferReset();
     void i2cRequest();
+
+     typedef void (Producer::*reqPtr)() const;
  
   private:
     //Variables
@@ -55,10 +57,11 @@ class Producer : public TwoWire{
     boolean _buffInvert;
     word _buffer[BUFMAX];
     byte _buffMeta[BUFMAX];
+    //void (*_myFunc)(void);
 
     //Functions
     //void requestEvent();
-    void onRequest( void (Producer::*function)() );
+    //void onRequest();
 };
 
 #endif

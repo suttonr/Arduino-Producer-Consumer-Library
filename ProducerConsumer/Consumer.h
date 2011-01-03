@@ -1,8 +1,8 @@
 /*
- * GPX Library -- GPX.h
+ * Producer/Consumer Library -- Consumer.h
  * Created by: Ryan Sutton
  *
- * Copyright (c) 2010, Ryan M Sutton
+ * Copyright (c) 2011, Ryan M Sutton
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,10 @@
 #ifndef Consumer_h
 #define Consumer_h
 
+#ifndef METAMAX
+#define METAMAX 10
+#endif
+
 #include <WProgram.h>
 #include <WString.h>
 #include <Wire.h>
@@ -39,7 +43,8 @@ class Consumer{
   public:
     Consumer(int addr);
     byte getUpdate();
-
+    byte readBuffer();
+    word getValue(byte meta);
     long lat;
     long lon;
     long alt;
@@ -48,10 +53,12 @@ class Consumer{
   private:
     //Variables
     int _addr;
+    word _data[METAMAX];
+    word errorval;
     unsigned int _lastUpdate;
 
     //Functions
-    byte readSensorBuffer(boolean);
+    //byte readSensorBuffer(boolean);
 };
 
 #endif

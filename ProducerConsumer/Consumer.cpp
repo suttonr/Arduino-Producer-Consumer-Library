@@ -33,26 +33,27 @@
 
 Consumer::Consumer(int addr){
   _addr = addr;
-  lat=0;
-  lon=0;
-  alt=0;
   dataValid=false;
 }
 
 byte Consumer::getUpdate(){
   byte ret;
   byte count=0;
-  ret=readSensorBuffer(false);
-  while (ret){
+  ret=readBuffer();
+  while (ret<0xFE){
     //Serial.println("READ");
-    ret=readSensorBuffer(false);
+    ret=readBuffer();
     count++;
   }
   //Serial.println(count,HEX);
   return count;
 }
 
-byte Consumer::readSensorBuffer(boolean debug)
+word Consumer::getValue(byte meta){
+  return _data[meta];
+}
+
+byte Consumer::readBuffer()
 {
   //reset loop variables 
   int byteCount=0;
@@ -62,7 +63,7 @@ byte Consumer::readSensorBuffer(boolean debug)
   
   //Serial.print("addr:");
   //Serial.println(_addr);
-  Wire.begin();
+  //Wire.begin();
   Wire.requestFrom(_addr, 6);
   //Serial.print("wa:");
   //Serial.println(Wire.available(),HEX); 
@@ -73,9 +74,9 @@ byte Consumer::readSensorBuffer(boolean debug)
       //Serial.print("!");
 
       c = Wire.receive();
-      if (debug){
+#ifdef DEBUG
         Serial.print(c,HEX);
-      }
+#endif
       if (byteCount <4){
         check ^= c; 
         recievedVal = recievedVal<<8;
@@ -83,33 +84,33 @@ byte Consumer::readSensorBuffer(boolean debug)
       }else if (byteCount <5){
         valType = c;
         check ^= c;
-      }else{
-        if (debug){
-          if (check==c){
-            Serial.print(":");
-            Serial.print(recievedVal);
-            Serial.println(":VALID");
-          }else{
-            Serial.print(":");
-            Serial.print(recievedVal);
-            Serial.println(":INVALID");
-          }
+      }
+#ifdef DEBUG
+      else{
+        if (check==c){
+          Serial.print(":");
+          Serial.print(recievedVal);
+          Serial.println(":VALID");
+        }else{
+          Serial.print(":");
+          Serial.print(recievedVal);
+          Serial.println(":INVALID");
         }
       }
+#endif
       byteCount++;
     }
   }
 
-  if ((check==c)&&(valType==0x1)){
-    lat = recievedVal;
-    return 0x1;
-  } else if ((check==c)&&(valType==0x2)){
-    lon = recievedVal;
-    return 0x2;
-  } else if ((check==c)&&(valType==0x3)){
-    alt = recievedVal;
-    return 0x3;
+  if ((check==c)&&(valType<METAMAX)){
+    _data[valType] = recievedVal;
+    return valType;
+  }else if (check==c){
+    errorval = recievedVal;
+    return 0xFF;
+  }else{
+    errorval = 0xFEFEFEFE;
+    return 0xFE;
   }
-  return 0x0;
 }
 

@@ -30,10 +30,6 @@
  */
 
 #include "Producer.h"
-void Producer::onRequest( void (Producer::*function)() )
-{
-  onRequest(function);
-}
 
 Producer::Producer(int addr){
   _addr = addr;
@@ -41,9 +37,6 @@ Producer::Producer(int addr){
   _buffWrite=0;
   _buffInvert=false;
   _lastUpdate = 0;
-
-  begin(_addr);
-  onRequest(&Producer::i2cRequest);
 }
 
 byte Producer::bufferWrite(word data,byte meta){
@@ -55,7 +48,17 @@ byte Producer::bufferWrite(word data,byte meta){
     _buffWrite = 0;
     _buffInvert=true;
   }
+#ifdef DEBUG
+  Serial.print("!");
+#endif
   return 1;
+}
+
+void Producer::bufferReset(){
+  _buffRead=_buffWrite;
+  _buffInvert=false;
+  Serial.println("RESET");
+  return;
 }
 
 void Producer::i2cRequest(){
@@ -64,6 +67,9 @@ void Producer::i2cRequest(){
   // responce: 0xDDDDDDDDMMCC ( D:data M:meta C:checksum )
   if (((_buffWrite >_buffRead)&&!_buffInvert)||((_buffWrite <=_buffRead)&&_buffInvert)){
     //build responce
+#ifdef DEBUG
+    Serial.println(_buffer[_buffRead]);
+#endif
     answer[4] = _buffMeta[_buffRead];
     answer[3] = _buffer[_buffRead] & 0xFF;
     answer[2] = (_buffer[_buffRead]>>8)&0xFF; 
@@ -73,10 +79,18 @@ void Producer::i2cRequest(){
     //compute checksum
     answer[5] = answer[0] ^ answer[1] ^ answer[2] ^ answer[3] ^ answer[4];
 
+    _buffRead++;
+    if (_buffRead == BUFMAX){
+      _buffRead=0;
+      _buffInvert=false;
+    }
     //send responce
-    send(answer,6);
+    Wire.send(answer,6);
 
   } else {
+#ifdef DEBUG
+    Serial.println("X");
+#endif
     //build error message
     answer[4] = 0xFF;
     answer[3] = _buffRead & 0xFF;
@@ -88,6 +102,7 @@ void Producer::i2cRequest(){
     answer[5] = answer[0] ^ answer[1] ^ answer[2] ^ answer[3] ^ answer[4];
 
     //send responce
-    send(answer,6);
+    Wire.send(answer,6);
+    bufferReset();
   }
 }
