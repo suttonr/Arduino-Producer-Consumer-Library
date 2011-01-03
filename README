@@ -1,13 +1,41 @@
-Links two arduinos together using a buffer on the producer side. 
+Links two arduinos together using a buffer on the producer side. One 32bit word
+one byte of metadata, and one byte of checksum is transmitted in each message 
+
+Producer:
+Setup:
+  * Wire.begin(addr) should be done in calling program's setup() func 
+  * Producer will be setup as a I2C slave with the address specified in
+    Producer::Producer(int address);
+  * Wire.onRequest(void(*)()) must be setup in calling program's setup() to
+    call a local function which references Producer::i2cRequest()
+    ***TODO: FIX THIS***
+Run:
+  * When the buffer is written one byte of metadata is attached to the data.
+    Producer::writeBuffer(word data,byte meta);  
+
+Consumer:
+Setup:
+  * Wire.begin() should be done in calling program's setup() func
+  * Consumer will be setup as a I2C master and read from the slave with address
+    specified in Consumer::Consumer(int address);
+  * 
+Run:
+  * Consumer::readBuffer() returns the meta for the recieved data
+    Special metas:
+      * 0xFF - Buffer full
+      * 0xFE - Checksum failed ( data lost )
+  * Consumer::getValue(meta) returns the most recent data for that meta
+  * Consumer::getUpdate() reads all avaiable data in buffer, only data for most
+    recent meta is avaiable
 
 Requirements:
   * Arduino 0019 or greater
 
 Limitations:
-  * Only consumer in the library at this time.
   * Only I2C implemented
-  * Customized for GPS data, eventully will be obfuscated
-
+  * No data handshake, if checksum failes data is lost.
+  * Does not tell the producer when buffer is full (dumps the buffer and 
+    'resets' the buffer)
 Install:
   To install copy the ProducerConsumer/ directory into your arduino 'libraries'
   directory
