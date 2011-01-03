@@ -2,8 +2,8 @@
  * Consumer Example -- Consumer.pde
  * Created by: Ryan M Sutton
  *  
- * Summary:  Uses TinyGPS and Wire Lib to collect GPS data and send it to
-             the main processor on the I2C bus.
+ * Summary:  Uses Consumer library to retrieve data from a Producer on 
+ *           the I2C bus
  *
  * Hardware: I2C connection to Producer on pins 4 & 5
  *         
