@@ -9,7 +9,7 @@
  *           
  *           
  *
- * Copyright (c) 2010, Ryan M Sutton
+ * Copyright (c) 2011, Ryan M Sutton
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
