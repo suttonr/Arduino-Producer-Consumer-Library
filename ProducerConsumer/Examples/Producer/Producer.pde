@@ -1,12 +1,12 @@
 /* 
- * SensorProcessor -- SensorProcessor.pde
+ * Producer Example -- Producer.pde
  * Created by: Ryan M Sutton
  *  
  * Summary:  Uses TinyGPS and Wire Lib to collect GPS data and send it to
              the main processor on the I2C bus.
  *
- * Hardware: I2C connection to MainProcessor on pins 4 & 5
- *           GPS on ping 8 @ 9600 baud
+ * Hardware: I2C connection to Consumer on pins 4 & 5
+ *           
  *           
  *
  * Copyright (c) 2010, Ryan M Sutton
